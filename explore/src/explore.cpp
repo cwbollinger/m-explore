@@ -69,6 +69,8 @@ Explore::Explore()
   private_nh_.param("gain_scale", gain_scale_, 1.0);
   private_nh_.param("min_frontier_size", min_frontier_size, 0.5);
 
+  pause_service_ = private_nh_.advertiseService("pause" , &Explore::pause, this);
+  unpause_service_ = private_nh_.advertiseService("unpause" , &Explore::unpause, this);
   search_ = frontier_exploration::FrontierSearch(costmap_client_.getCostmap(),
                                                  potential_scale_, gain_scale_,
                                                  min_frontier_size);
@@ -85,11 +87,24 @@ Explore::Explore()
   exploring_timer_ =
       relative_nh_.createTimer(ros::Duration(1. / planner_frequency_),
                                [this](const ros::TimerEvent&) { makePlan(); });
+  exploring_timer_.stop();
 }
 
 Explore::~Explore()
 {
   stop();
+}
+
+bool Explore::pause(std_srvs::Empty::Request &req, std_srvs::Empty::Response &res)
+{
+  stop();
+  return(true);
+}
+
+bool Explore::unpause(std_srvs::Empty::Request &req, std_srvs::Empty::Response &res)
+{
+  start();
+  return(true);
 }
 
 void Explore::visualizeFrontiers(

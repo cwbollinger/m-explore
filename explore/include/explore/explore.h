@@ -47,6 +47,7 @@
 #include <move_base_msgs/MoveBaseAction.h>
 #include <ros/ros.h>
 #include <visualization_msgs/MarkerArray.h>
+#include <std_srvs/Empty.h>
 
 #include <explore/costmap_client.h>
 #include <explore/frontier_search.h>
@@ -66,6 +67,9 @@ public:
 
   void start();
   void stop();
+
+  bool pause(std_srvs::Empty::Request &req, std_srvs::Empty::Response &res);
+  bool unpause(std_srvs::Empty::Request &req, std_srvs::Empty::Response &res);
 
 private:
   /**
@@ -93,6 +97,8 @@ private:
   Costmap2DClient costmap_client_;
   actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction>
       move_base_client_;
+  ros::ServiceServer pause_service_;
+  ros::ServiceServer unpause_service_;
   frontier_exploration::FrontierSearch search_;
   ros::Timer exploring_timer_;
   ros::Timer oneshot_;
